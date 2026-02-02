@@ -8,8 +8,8 @@ export async function startVolumeLoop(tokenAddr: string) {
         // 1. Pick a random child wallet from your list
         const randomWallet = wallets[Math.floor(Math.random() * wallets.length)];
         
-        // 2. Pick a random amount (e.g., between 0.01 and 0.05 SOL)
-        const randomAmount = (Math.random() * (0.05 - 0.01) + 0.01).toFixed(4);
+        // 2. Pick a random amount (e.g., between 0.01 and 0.02 SOL)
+        const randomAmount = (Math.random() * (0.02 - 0.01) + 0.01).toFixed(4);
 
         console.log(`[LOOP] Wallet ${randomWallet.publicKey.toBase58().slice(0,6)} trading ${randomAmount} SOL`);
 
@@ -19,12 +19,12 @@ export async function startVolumeLoop(tokenAddr: string) {
             console.error("Trade failed, skipping to next...");
         }
 
-        // 3. Set a random delay before the next trade (e.g., 30 to 90 seconds)
-        const nextDelay = Math.floor(Math.random() * (90000 - 30000) + 30000);
+        // 3. Set a random delay before the next trade (e.g., 30 to 60 seconds)
+        const nextDelay = Math.floor(Math.random() * (60000 - 30000) + 30000);
         
         console.log(`Next trade in ${nextDelay / 1000} seconds...`);
         setTimeout(runSingleTrade, nextDelay);
     }
 
-    runSingleTrade(); // Kick off the first trade
+    runSingleTrade();
 }

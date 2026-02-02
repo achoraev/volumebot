@@ -10,12 +10,9 @@ import {
   import bs58 from "bs58";
   import * as fs from "fs";
   
-  // 1. Setup Connection & Main Wallet
-  const RPC_URL = "https://api.mainnet-beta.solana.com"; // Use a private RPC for better reliability
-  const connection = new Connection(RPC_URL, "confirmed");
+  const connection = new Connection(process.env.RPC_URL!);
   
-  // REPLACE THIS with your main wallet private key (Base58 string)
-  const MAIN_WALLET = Keypair.fromSecretKey(bs58.decode("YOUR_PRIVATE_KEY"));
+  const MAIN_WALLET = Keypair.fromSecretKey(bs58.decode(process.env.MAIN_PRIVATE_KEY!));
   
   async function setupChildWallets(numWallets: number, amountToFund: number) {
       console.log(`--- Starting Setup for ${numWallets} Wallets ---`);
