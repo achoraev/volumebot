@@ -1,39 +1,22 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.stopVolumeLoop = exports.startVolumeLoop = exports.activeBots = void 0;
+const web3_js_1 = require("@solana/web3.js");
+const loop_1 = require("../engine/loop");
+const bs58_1 = __importDefault(require("bs58"));
+exports.activeBots = new Map();
+const startVolumeLoop = (tokenAddress, settings) => {
+    const workerKey = process.env.MAIN_PRIVATE_KEY;
+    const wallet = web3_js_1.Keypair.fromSecretKey(bs58_1.default.decode(workerKey));
+    const botId = tokenAddress;
+    exports.activeBots.set(botId, true);
+    (0, loop_1.runVolumeLoop)(wallet, tokenAddress, settings).catch(console.error);
+};
 exports.startVolumeLoop = startVolumeLoop;
-const jupiter_1 = require("../engine/jupiter");
-const wallet_1 = require("../engine/wallet");
-function startVolumeLoop(tokenAddr) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const wallets = yield (0, wallet_1.loadWallets)();
-        function runSingleTrade() {
-            return __awaiter(this, void 0, void 0, function* () {
-                // 1. Pick a random child wallet from your list
-                const randomWallet = wallets[Math.floor(Math.random() * wallets.length)];
-                // 2. Pick a random amount (e.g., between 0.01 and 0.02 SOL)
-                const randomAmount = (Math.random() * (0.02 - 0.01) + 0.01).toFixed(4);
-                console.log(`[LOOP] Wallet ${randomWallet.publicKey.toBase58().slice(0, 6)} trading ${randomAmount} SOL`);
-                try {
-                    yield (0, jupiter_1.createVolume)(randomWallet, tokenAddr, parseFloat(randomAmount));
-                }
-                catch (err) {
-                    console.error("Trade failed, skipping to next...");
-                }
-                // 3. Set a random delay before the next trade (e.g., 30 to 60 seconds)
-                const nextDelay = Math.floor(Math.random() * (60000 - 30000) + 30000);
-                console.log(`Next trade in ${nextDelay / 1000} seconds...`);
-                setTimeout(runSingleTrade, nextDelay);
-            });
-        }
-        runSingleTrade();
-    });
-}
+const stopVolumeLoop = (tokenAddress) => {
+    exports.activeBots.set(tokenAddress, false);
+};
+exports.stopVolumeLoop = stopVolumeLoop;

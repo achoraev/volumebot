@@ -12,10 +12,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getAllBalances = getAllBalances;
 exports.loadWallets = loadWallets;
 const web3_js_1 = require("@solana/web3.js");
 const bs58_1 = __importDefault(require("bs58"));
 const fs_1 = __importDefault(require("fs"));
+const web3_js_2 = require("@solana/web3.js");
+function getAllBalances() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const connection = new web3_js_2.Connection(process.env.RPC_URL);
+        const wallets = yield loadWallets();
+        const publicKeys = wallets.map(w => w.publicKey);
+        const accounts = yield connection.getMultipleAccountsInfo(publicKeys);
+        return accounts.map((acc, index) => ({
+            address: publicKeys[index].toBase58(),
+            balance: acc ? acc.lamports / web3_js_2.LAMPORTS_PER_SOL : 0,
+            status: acc ? (acc.lamports / web3_js_2.LAMPORTS_PER_SOL < 0.01 ? "LOW" : "OK") : "EMPTY"
+        }));
+    });
+}
 function loadWallets() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
